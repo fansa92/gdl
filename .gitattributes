@@ -1,0 +1,8 @@
+# 统一用 LF，避免跨平台协作时整文件行尾差异
+* text=auto eol=lf
+
+*.exe binary
+*.zip binary
+*.png binary
+*.jpg binary
+*.ico binary
