@@ -1,0 +1,20 @@
+# 构建产物
+/gdl
+/gdl.exe
+*.exe
+/dist/
+
+# 断点续传临时文件
+*.part
+*.part.json
+
+# 测试与临时文件
+*.tmp
+*.log
+/tmp/
+
+# 编辑器与系统
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
