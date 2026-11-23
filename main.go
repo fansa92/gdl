@@ -17,13 +17,14 @@ import (
 	"syscall"
 	"time"
 
-	"gdl/internal/config"
-	"gdl/internal/download"
-	"gdl/internal/progress"
-	"gdl/internal/report"
+	"github.com/fansa92/gdl/internal/config"
+	"github.com/fansa92/gdl/internal/download"
+	"github.com/fansa92/gdl/internal/progress"
+	"github.com/fansa92/gdl/internal/report"
 )
 
-const version = "1.1.0"
+// version 可在构建时通过 -ldflags "-X main.version=x.y.z" 注入（release 流程用 tag 覆盖）。
+var version = "1.1.0"
 
 // stringList 支持重复出现的字符串选项（如 -H, -M）。
 type stringList []string

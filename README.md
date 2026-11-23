@@ -1,14 +1,43 @@
 # gdl — 命令行下载器
 
+[![CI](https://github.com/fansa92/gdl/actions/workflows/ci.yml/badge.svg)](https://github.com/fansa92/gdl/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/fansa92/gdl?display_name=tag)](https://github.com/fansa92/gdl/releases)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 用 Go 编写的单文件下载工具。核心是「多连接下载 + 分块级断点续传」，同时补齐了日常脚本里常用的条件请求、认证、Cookie、限速与批量任务。
 
 依赖只有标准库和 `golang.org/x/net`（socks5 代理、公共后缀列表），编译产物是单个静态可执行文件。
 
-## 构建
+## 安装
 
-```powershell
-go build -o gdl.exe .
+**预编译二进制**：从 [Releases](https://github.com/fansa92/gdl/releases) 下载对应平台压缩包，解压即用（单文件，无运行时依赖）。
+
+| 平台 | 文件后缀 |
+| --- | --- |
+| Windows x64 / ARM64 | `_windows_amd64.zip` / `_windows_arm64.zip` |
+| Linux x64 / ARM64 / x86 / ARMv7 | `_linux_amd64.tar.gz` / `_linux_arm64` / `_linux_386` / `_linux_arm` |
+| macOS Intel / Apple Silicon | `_darwin_amd64.tar.gz` / `_darwin_arm64.tar.gz` |
+| FreeBSD x64 | `_freebsd_amd64.tar.gz` |
+
+每个 release 都附 `sha256sums.txt`，可用 `sha256sum -c` 校验。
+
+**从源码**（需要 Go 1.26+）：
+
+```bash
+go install github.com/fansa92/gdl@latest   # 装到 $GOBIN
+```
+
+本地构建：
+
+```bash
+go build -o gdl .
 go test ./...
+```
+
+构建时可注入版本号（release 流程就是这么做的）：
+
+```bash
+go build -trimpath -ldflags "-s -w -X main.version=1.2.3" -o gdl .
 ```
 
 ## 用法
@@ -166,4 +195,12 @@ internal/progress/
   progress.go                  进度条与字节/时长格式化
 internal/report/
   report.go                    --write-out 模板渲染
+.github/workflows/
+  ci.yml                       gofmt / vet / test / 交叉编译校验
+  release.yml                  打 tag 时交叉编译 9 个平台并发布 Release
 ```
+
+## 许可证
+
+[MIT](LICENSE) © 2026 fansa92
+

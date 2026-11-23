@@ -1,0 +1,91 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  format:
+    name: 格式与静态检查
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: gofmt
+        run: |
+          unformatted=$(gofmt -l .)
+          if [ -n "$unformatted" ]; then
+            echo "以下文件未格式化，请运行 gofmt -w ."
+            echo "$unformatted"
+            exit 1
+          fi
+      - name: go vet
+        run: go vet ./...
+
+  test:
+    name: 测试 (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            race: "-race"
+          - os: windows-latest
+            race: ""
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: go test
+        run: go test ${{ matrix.race }} -count=1 ./...
+      - name: go build
+        run: go build ./...
+
+  cross:
+    name: 交叉编译校验
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: 各平台均可编译
+        run: |
+          set -euo pipefail
+          build() {
+            local goos=$1 goarch=$2 goarm=${3:-}
+            local out="gdl"
+            if [ "$goos" = windows ]; then
+              out="gdl.exe"
+            fi
+            echo "→ ${goos}/${goarch}"
+            mkdir -p "/tmp/${goos}-${goarch}"
+            CGO_ENABLED=0 GOOS=$goos GOARCH=$goarch GOARM=$goarm \
+              go build -trimpath -o "/tmp/${goos}-${goarch}/${out}" .
+          }
+          build linux amd64
+          build linux arm64
+          build linux 386
+          build linux arm 7
+          build darwin amd64
+          build darwin arm64
+          build windows amd64
+          build windows arm64
+          build freebsd amd64
+          echo "全部平台编译通过"

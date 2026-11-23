@@ -1,4 +1,4 @@
-module gdl
+module github.com/fansa92/gdl
 
 go 1.26.0
 

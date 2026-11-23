@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"gdl/internal/download"
+	"github.com/fansa92/gdl/internal/download"
 )
 
 // Size 允许配置文件里写数字（字节）或 "100M" / "5k" 这种带单位的字符串。

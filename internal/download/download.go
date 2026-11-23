@@ -21,7 +21,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"gdl/internal/progress"
+	"github.com/fansa92/gdl/internal/progress"
 )
 
 // errNoRange 表示服务器中途拒绝 Range 请求，需要退回单流模式重来。

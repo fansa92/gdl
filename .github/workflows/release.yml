@@ -1,0 +1,80 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: 构建并发布
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: 发布前测试
+        run: go test -count=1 ./...
+
+      - name: 交叉编译并打包
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          VERSION="${TAG#v}"
+          echo "版本 ${VERSION}"
+          rm -rf dist build && mkdir -p dist
+
+          build() {
+            local goos=$1 goarch=$2 goarm=${3:-}
+            local ext="" name="gdl_${VERSION}_${goos}_${goarch}"
+            local work="build/${name}"
+            if [ "$goos" = windows ]; then
+              ext=".exe"
+            fi
+            mkdir -p "$work"
+            echo "→ ${goos}/${goarch}"
+            CGO_ENABLED=0 GOOS=$goos GOARCH=$goarch GOARM=$goarm \
+              go build -trimpath \
+                -ldflags "-s -w -X main.version=${VERSION}" \
+                -o "${work}/gdl${ext}" .
+            cp README.md LICENSE "$work/"
+            if [ "$goos" = windows ]; then
+              (cd build && zip -qr "../dist/${name}.zip" "${name}")
+            else
+              tar -C build -czf "dist/${name}.tar.gz" "${name}"
+            fi
+            rm -rf "$work"
+          }
+
+          build linux amd64
+          build linux arm64
+          build linux 386
+          build linux arm 7
+          build darwin amd64
+          build darwin arm64
+          build windows amd64
+          build windows arm64
+          build freebsd amd64
+
+          (cd dist && sha256sum *.tar.gz *.zip > sha256sums.txt)
+          echo "--- 产物 ---"
+          ls -lh dist
+
+      - name: 创建 Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          gh release create "$TAG" \
+            --title "$TAG" \
+            --generate-notes \
+            dist/*
