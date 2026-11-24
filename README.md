@@ -10,16 +10,23 @@
 
 ## 安装
 
-**预编译二进制**：从 [Releases](https://github.com/fansa92/gdl/releases) 下载对应平台压缩包，解压即用（单文件，无运行时依赖）。
+**预编译二进制**：从 [Releases](https://github.com/fansa92/gdl/releases) 下载对应平台压缩包，解压即用（单文件，无运行时依赖，纯 Go 静态编译）。共 21 个平台：
 
-| 平台 | 文件后缀 |
-| --- | --- |
-| Windows x64 / ARM64 | `_windows_amd64.zip` / `_windows_arm64.zip` |
-| Linux x64 / ARM64 / x86 / ARMv7 | `_linux_amd64.tar.gz` / `_linux_arm64` / `_linux_386` / `_linux_arm` |
-| macOS Intel / Apple Silicon | `_darwin_amd64.tar.gz` / `_darwin_arm64.tar.gz` |
-| FreeBSD x64 | `_freebsd_amd64.tar.gz` |
+| 系统 | 架构 | 压缩包 |
+| --- | --- | --- |
+| Linux | amd64 / arm64 / 386 / armv7 / riscv64 / loong64 | `.tar.gz` |
+| Windows | amd64 / arm64 / 386 | `.zip` |
+| macOS | amd64 (Intel) / arm64 (Apple Silicon) | `.tar.gz` |
+| FreeBSD | amd64 / arm64 | `.tar.gz` |
+| NetBSD | amd64 / arm64 | `.tar.gz` |
+| OpenBSD | amd64 / arm64 | `.tar.gz` |
+| DragonFly BSD | amd64 | `.tar.gz` |
+| Solaris / illumos | amd64 | `.tar.gz` |
+| AIX | ppc64 | `.tar.gz` |
 
-每个 release 都附 `sha256sums.txt`，可用 `sha256sum -c` 校验。
+包名格式 `gdl_<版本>_<系统>_<架构>.<后缀>`，例如 `gdl_1.2.0_linux_arm64.tar.gz`。每个 release 都附 `sha256sums.txt`，可用 `sha256sum -c` 校验。
+
+> Android / iOS 不提供预编译包（需要 CGO 与厂商 SDK，且没有常规 shell 环境）。其它架构（MIPS、PPC64、s390x、Plan 9、WASM 等）Go 同样能交叉编译，有需要可在本地用 `GOOS`/`GOARCH` 自行构建。
 
 **从源码**（需要 Go 1.26+）：
 
@@ -197,7 +204,7 @@ internal/report/
   report.go                    --write-out 模板渲染
 .github/workflows/
   ci.yml                       gofmt / vet / test / 交叉编译校验
-  release.yml                  打 tag 时交叉编译 9 个平台并发布 Release
+  release.yml                  打 tag 时交叉编译 21 个平台并发布 Release
 ```
 
 ## 许可证

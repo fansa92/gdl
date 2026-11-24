@@ -24,7 +24,7 @@ import (
 )
 
 // version 可在构建时通过 -ldflags "-X main.version=x.y.z" 注入（release 流程用 tag 覆盖）。
-var version = "1.1.0"
+var version = "1.2.0"
 
 // stringList 支持重复出现的字符串选项（如 -H, -M）。
 type stringList []string
